@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+
+set -o errexit   # Same as set -e; Exit immediately if a pipeline (…) returns a
+                 # non-zero status.
+set -o pipefail  # Only return 0 if all parts of the pipeline return 0
+set -o noclobber # Prevents you from accidentally overwritting a file with >
+                 # when you meant to use >> Can be overridden with >!
+set -o nounset   # Same as set -u; Exit if script tries to use undeclared var
+
+# Constants
+DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+usage() {
+  echo "
+usage: ansible <command> [<args>]
+
+ping                      Pings ansible nodes
+                          [<args>]
+                          1. pattern (optional - defaults to all)
+                            - The host pattern to target
+                          Example usage:
+                          $ ansible ping home
+
+playbook                  Run a specified playbook
+                          [<args>]
+                          1. playbook
+                            - Name of playbook yaml in the ./playbooks
+                              directory
+                          Example usage:
+                          $ ansible playbook mytask.yaml
+
+cmd                       Run a live command on all your nodes
+                          [<args>]
+                          1. command
+                            - Shell command to run
+                          Example usage:
+                          $ ansible cmd 'echo hello'
+
+shell                     Run a shell command in the ansible container
+                          [<args>]
+                          1. command
+                            - Shell command to run
+                          Example usage:
+                          $ ansible shell whoami
+                          $ ansible shell ansible all -m ping"
+}
+
+ping() {
+  local nodes="${1:-all}"
+  docker run --rm --interactive --tty \
+    -v "$HOME/.ssh:/root/.ssh" \
+    -v "$DIR/ansible-config:/etc/ansible" \
+    -e "USER=$USER" \
+    ansible ansible $nodes -m ping
+}
+
+playbook() {
+  local playbook="$1"
+  docker run --rm --interactive --tty \
+    -v "$HOME/.ssh:/root/.ssh" \
+    -v "$DIR/ansible-config:/etc/ansible" \
+    -v "$DIR/playbooks:/root/playbooks" \
+    -e "USER=$USER" \
+    ansible ansible-playbook "/root/playbooks/${playbook}"
+}
+
+cmd() {
+  local command="$@"
+  docker run --rm --interactive --tty \
+    -v "$HOME/.ssh:/root/.ssh" \
+    -v "$DIR/ansible-config:/etc/ansible" \
+    -e "USER=$USER" \
+    ansible ansible all -a "${command}"
+}
+
+shell() {
+  docker run --rm --interactive --tty \
+    -v "$HOME/.ssh:/root/.ssh" \
+    -v "$DIR/ansible-config:/etc/ansible" \
+    -e "USER=$USER" \
+    ansible $@
+}
+
+main() {
+  local command="${1:---help}"
+  case $command in
+    "" | "-h" | "--help")
+      usage
+      ;;
+    "ping")
+      shift 1
+      ping $@
+      ;;
+    "playbook")
+      shift 1
+      playbook $@
+      ;;
+    "cmd")
+      shift 1
+      cmd $@
+      ;;
+    "shell")
+      shift 1
+      shell $@
+      ;;
+    *)
+      usage
+      ;;
+  esac
+}
+
+main $@

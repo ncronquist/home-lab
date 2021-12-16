@@ -1,0 +1,37 @@
+- name: Install Docker Dependencies
+  apt:
+    name: "{{item}}"
+    state: present
+    update_cache: yes
+  loop:
+    - ca-certificates
+    - curl
+    - gnupg
+    - lsb-release
+
+- name: Add Docker's Official GPG Key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository to Apt
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu   focal stable
+    filename: docker
+    state: present
+
+- name: Install Docker
+  apt:
+    name: "{{item}}"
+    state: latest
+    update_cache: yes
+  loop:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+
+- name: Activate Docker Service
+  service:
+    name: docker
+    state: started
+    enabled: yes

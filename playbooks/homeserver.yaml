@@ -1,0 +1,19 @@
+---
+- name: Home Server
+  hosts: all
+  roles:
+    - role: docker
+    - role: jellyfin-setup
+    - role: docker-systemd
+      container_name: jellyfin
+      container_repository: jellyfin/jellyfin
+      container_volumes:
+        - "/media:/media"
+        - "/srv/jellyfin/config:/config"
+        - "/srv/jellyfin/cache:/cache"
+      container_extra_options:
+        - "--network host"
+        - "--device /dev/dri/renderD128:/dev/dri/renderD128"
+        - "--device /dev/dri/card0:/dev/dri/card0"
+        - "--group-add=109"
+        - "--user 1000:1000"

@@ -1,0 +1,22 @@
+---
+- name: Create Service File
+  template:
+    dest: "/etc/systemd/system/{{container_service_name}}"
+    src: systemd-container.service.j2
+  register: service_config
+
+- name: Reload Systemd
+  shell: systemctl daemon-reload
+  when: service_config.changed
+
+- name: Restart Service
+  service:
+    name: "{{ container_service_name }}"
+    state: restarted
+  when: service_config.changed
+
+- name: Enable Service
+  service:
+    name: "{{ container_service_name }}"
+    state: started
+    enabled: yes

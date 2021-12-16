@@ -1,0 +1,15 @@
+---
+# This role does not actually install Jellyfin. It just sets up required
+# Jellyfin directories.
+
+- name: Create a directory for Jellyfin configuration
+  ansible.builtin.file:
+    path: /srv/jellyfin/config
+    state: directory
+    mode: '0777'
+
+- name: Create a directory for Jellyfin caching
+  ansible.builtin.file:
+    path: /srv/jellyfin/cache
+    state: directory
+    mode: '0777'
