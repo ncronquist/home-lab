@@ -1,0 +1,22 @@
+---
+- name: Create an Nginx Config Directory
+  ansible.builtin.file:
+    path: /etc/nginx/conf.d
+    state: directory
+    mode: '0777'
+
+- name: Create Nginx Html Directory
+  ansible.builtin.file:
+    path: /usr/share/nginx/html
+    state: directory
+    mode: '0777'
+
+- name: Create Index.html
+  template:
+    dest: "/usr/share/nginx/html/index.html"
+    src: index.html
+
+- name: Create Nginx Configuration
+  template:
+    dest: "/etc/nginx/nginx.conf"
+    src: nginx.conf

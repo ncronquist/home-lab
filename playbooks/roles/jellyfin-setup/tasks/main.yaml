@@ -13,3 +13,10 @@
     path: /srv/jellyfin/cache
     state: directory
     mode: '0777'
+
+# Note that the base nginx config and config directories are created by the 
+# nginx role
+- name: Create Jellyfin Nginx Config
+  template:
+    dest: "/etc/nginx/conf.d/jellyfin-nginx.conf"
+    src: jellyfin-nginx.conf
