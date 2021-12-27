@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+docker run -it --rm --name certbot \
+    -v "/etc/letsencrypt:/etc/letsencrypt" \
+    -v "/var/lib/letsencrypt:/var/lib/letsencrypt" \
+    -v "/usr/share/nginx/html:/usr/share/nginx/html" \
+    certbot/certbot \
+        certonly \
+        -d home.ncronquist.com \
+        --email ncronquist@outlook.com \
+        --webroot \
+        --webroot-path /usr/share/nginx/html \
+        --no-eff-email \
+        --agree-tos \
+        --keep-until-expiring

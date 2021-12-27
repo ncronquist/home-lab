@@ -1,0 +1,27 @@
+---
+- name: Create a Directory for Letsencrypt
+  ansible.builtin.file:
+    path: /etc/letsencrypt
+    state: directory
+    mode: '0777'
+
+- name: Create a Lib Directory for Letsencrypt
+  ansible.builtin.file:
+    path: /var/lib/letsencrypt
+    state: directory
+    mode: '0777'
+
+# This is a shellscript that will run to renew letsencrypt certs
+- name: Create letsencrypt script
+  template:
+    dest: "/usr/local/bin/letsencrypt"
+    src: letsencrypt
+    mode: '0777'
+
+- name: Run letsencrypt script once per week
+  ansible.builtin.cron:
+    name: "Renew Letsencrypt Certs"
+    minute: "0"
+    hour: "5"
+    weekday: "0"
+    job: "letsencrypt"

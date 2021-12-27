@@ -1,0 +1,11 @@
+---
+- name: Create a Directory for Foo
+  ansible.builtin.file:
+    path: /srv/foo
+    state: directory
+    mode: '0777'
+
+- name: Create a File to Test Ansible-Vault
+  ansible.builtin.copy:
+    dest: "/srv/foo/{{ foo_filename }}"
+    content: "{{ foo_content }}"

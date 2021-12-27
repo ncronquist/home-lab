@@ -42,43 +42,71 @@ shell                     Run a shell command in the ansible container
                             - Shell command to run
                           Example usage:
                           $ ansible shell whoami
-                          $ ansible shell ansible all -m ping"
+                          $ ansible shell ansible all -m ping
+                          
+vault                     Run ansible-vault from the root of the 
+                          playbooks directory
+                          [<args>]
+                          1. command
+                            - ansible-vault command to run
+                          Example usage:
+                          $ ansible vault decrypt group_vars/all/vault"
 }
 
 ping() {
   local nodes="${1:-all}"
   docker run --rm --interactive --tty \
-    -v "$HOME/.ssh:/root/.ssh" \
-    -v "$DIR/ansible-config:/etc/ansible" \
+    --volume "$HOME/.ssh:/root/.ssh" \
+    --volume "$DIR/ansible-config:/etc/ansible" \
     -e "USER=$USER" \
     ansible ansible $nodes -m ping
 }
 
 playbook() {
   local playbook="$1"
+  local tag="${2:-default}"
+
   docker run --rm --interactive --tty \
-    -v "$HOME/.ssh:/root/.ssh" \
-    -v "$DIR/ansible-config:/etc/ansible" \
-    -v "$DIR/playbooks:/root/playbooks" \
+    --volume "$HOME/.ssh:/root/.ssh" \
+    --volume "$DIR/ansible-config:/etc/ansible" \
+    --volume "$DIR/playbooks:/root/playbooks" \
+    --volume "$DIR/.vault-password:/root/.vault-password" \
     -e "USER=$USER" \
-    ansible ansible-playbook "/root/playbooks/${playbook}"
+    ansible ansible-playbook \
+      --vault-password-file /root/.vault-password \
+      --tag=$tag \
+      "/root/playbooks/${playbook}"
 }
 
 cmd() {
   local command="$@"
   docker run --rm --interactive --tty \
-    -v "$HOME/.ssh:/root/.ssh" \
-    -v "$DIR/ansible-config:/etc/ansible" \
+    --volume "$HOME/.ssh:/root/.ssh" \
+    --volume "$DIR/ansible-config:/etc/ansible" \
     -e "USER=$USER" \
     ansible ansible all -a "${command}"
 }
 
 shell() {
   docker run --rm --interactive --tty \
-    -v "$HOME/.ssh:/root/.ssh" \
-    -v "$DIR/ansible-config:/etc/ansible" \
+    --volume "$HOME/.ssh:/root/.ssh" \
+    --volume "$DIR/ansible-config:/etc/ansible" \
+    --volume "$DIR/playbooks:/root/playbooks" \
     -e "USER=$USER" \
     ansible $@
+}
+
+# Runs ansible-vault with the playbooks directory as the root
+# This allows for encrypting and decrypting files, ie:
+# $ ./ansible vault decrypt group_vars/all/vault
+# $ ./ansible vault encrypt group_vars/all/vault
+vault() {
+  docker run --rm --interactive --tty \
+    --volume "$DIR/playbooks:/root/playbooks" \
+    --workdir /root/playbooks \
+    -e "USER=$USER" \
+    --user "$(id -u):$(id -g)" \
+    ansible ansible-vault $@
 }
 
 main() {
@@ -102,6 +130,10 @@ main() {
     "shell")
       shift 1
       shell $@
+      ;;
+    "vault")
+      shift 1
+      vault $@
       ;;
     *)
       usage

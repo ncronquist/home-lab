@@ -3,9 +3,14 @@
   hosts: all
   roles:
     - role: docker
+      tags: ['init']
+    - role: foo
+      tags: ['default']
 
     - role: nginx
+      tags: ['default']
     - role: docker-systemd # Nginx
+      tags: ['default']
       container_name: nginx
       container_repository: nginx
       container_volumes:
@@ -15,8 +20,13 @@
       container_extra_options:
         - "--network host"
     
+    - role: letsencrypt
+      tags: ['default']
+    
     - role: jellyfin-setup
+      tags: ['default']
     - role: docker-systemd # Jellyfin
+      tags: ['default']
       container_name: jellyfin
       container_repository: jellyfin/jellyfin
       container_volumes:
