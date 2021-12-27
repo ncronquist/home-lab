@@ -20,3 +20,7 @@
   template:
     dest: "/etc/nginx/nginx.conf"
     src: nginx.conf
+
+- name: Generate Diffie-Hellman parameters with the default size (4096 bits)
+  community.crypto.openssl_dhparam:
+    path: /etc/ssl/dhparams.pem
