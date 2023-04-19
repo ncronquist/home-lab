@@ -21,10 +21,10 @@
         - "/etc/ssl/dhparams.pem:/etc/ssl/dhparams.pem"
       container_extra_options:
         - "--network host"
-    
+
     - role: letsencrypt
       tags: ['default']
-    
+
     - role: jellyfin-setup
       tags: ['default']
     - role: docker-systemd # Jellyfin
@@ -42,3 +42,17 @@
         - "--group-add=109"
         - "--user 1000:1000"
 
+    - role: jupyterhub
+      tags: ['default']
+    - role: docker-systemd # Jupyterhub
+      tags: ['default']
+      container_name: jupyterhub
+      # container_repository: "jupyterhub/jupyterhub jupyterhub --base-url='/jupyterhub/' --api-url='https://home.ncronquist.com/jupyterhubapi"
+      container_repository: "jupyterhub/jupyterhub"
+      container_cmd: jupyterhub
+      container_volumes:
+        - "/usr/local/share/jupyterhub:/usr/local/share/jupyterhub"
+        - "/srv/jupyterhub/jupyterhub_config.py:/srv/jupyterhub/jupyterhub_config.py"
+        - "/srv/jupyterhub/jupyterhub.sqlite:/srv/jupyterhub/jupyterhub.sqlite"
+      container_extra_options:
+        - "--network host"

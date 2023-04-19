@@ -1,0 +1,27 @@
+- name: Create a directory for Jupyterhub configuration
+  ansible.builtin.file:
+    path: /srv/jupyterhub
+    state: directory
+    mode: '0777'
+
+- name: Create Jupyterhub Data Directory
+  ansible.builtin.file:
+    path: /usr/local/share/jupyterhub
+    state: directory
+    mode: '0777'
+
+- name: Create Jupyterhub Config
+  template:
+    dest: "/srv/jupyterhub/jupyterhub_config.py"
+    src: jupyterhub_config.py
+
+- name: Create Jupyterhub DB File
+  ansible.builtin.file:
+    path: /srv/jupyterhub/jupyterhub.sqlite
+    state: file
+    mode: '0777'
+
+- name: Create Jupyterhub Nginx Config
+  template:
+    dest: "/etc/nginx/conf.d/jupyterhub-nginx.conf"
+    src: jupyterhub-nginx.conf

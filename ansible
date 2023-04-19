@@ -43,8 +43,8 @@ shell                     Run a shell command in the ansible container
                           Example usage:
                           $ ansible shell whoami
                           $ ansible shell ansible all -m ping
-                          
-vault                     Run ansible-vault from the root of the 
+
+vault                     Run ansible-vault from the root of the
                           playbooks directory
                           [<args>]
                           1. command
@@ -102,11 +102,15 @@ shell() {
 # $ ./ansible vault encrypt group_vars/all/vault
 vault() {
   docker run --rm --interactive --tty \
+    --volume "$DIR/ansible-config:/etc/ansible" \
     --volume "$DIR/playbooks:/root/playbooks" \
+    --volume "$DIR/.vault-password:/root/.vault-password" \
     --workdir /root/playbooks \
     -e "USER=$USER" \
-    --user "$(id -u):$(id -g)" \
-    ansible ansible-vault $@
+    -u $(id -u):$(id -g) \
+    ansible ansible-vault \
+      $@ \
+      --vault-password-file /root/.vault-password
 }
 
 main() {

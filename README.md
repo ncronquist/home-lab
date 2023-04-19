@@ -45,3 +45,5 @@ sudo systemctl restart sshd
   - [binhex/arch-plex](https://hub.docker.com/r/binhex/arch-plex)
   - [plexinc/pms-docker](https://hub.docker.com/r/plexinc/pms-docker/)
   - [linuxserver/docker-plex](https://github.com/linuxserver/docker-plex)
+- [Connecting JupyterHub to Auth0](https://medium.com/@bluedme/connecting-jupyterhub-to-auth0-e92f0bb6efb0)
+- [Jupyterhub Dockerfile](https://github.com/jupyterhub/jupyterhub/blob/main/Dockerfile)
